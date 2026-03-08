@@ -1,0 +1,48 @@
+{
+  "tools": {
+    "list-projects": {
+      "description": "List all portfolio projects",
+      "command": ".opencode/tools/list-projects.sh"
+    },
+    "create-project": {
+      "description": "Create a new project. Args: <title> <description> [techStack-comma-separated] [liveUrl] [repoUrl] [featured]",
+      "command": ".opencode/tools/create-project.sh"
+    },
+    "update-project": {
+      "description": "Update a project. Args: <id> <json-fields>",
+      "command": ".opencode/tools/update-project.sh"
+    },
+    "delete-project": {
+      "description": "Delete a project. Args: <id>",
+      "command": ".opencode/tools/delete-project.sh"
+    },
+    "list-skills": {
+      "description": "List all skills in the portfolio",
+      "command": ".opencode/tools/list-skills.sh"
+    },
+    "create-skill": {
+      "description": "Create a new skill. Args: <name> <category> [proficiency]",
+      "command": ".opencode/tools/create-skill.sh"
+    },
+    "delete-skill": {
+      "description": "Delete a skill. Args: <id>",
+      "command": ".opencode/tools/delete-skill.sh"
+    },
+    "list-experience": {
+      "description": "List all work experience entries",
+      "command": ".opencode/tools/list-experience.sh"
+    },
+    "create-experience": {
+      "description": "Create a new experience. Args: <company> <role> <description> <startDate> [endDate] [current]",
+      "command": ".opencode/tools/create-experience.sh"
+    },
+    "delete-experience": {
+      "description": "Delete an experience entry. Args: <id>",
+      "command": ".opencode/tools/delete-experience.sh"
+    },
+    "profile": {
+      "description": "Get or update profile. Args: [json-fields] - omit to get, provide JSON to update",
+      "command": ".opencode/tools/profile.sh"
+    }
+  }
+}
