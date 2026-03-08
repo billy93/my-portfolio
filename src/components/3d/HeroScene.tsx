@@ -2,147 +2,164 @@
 
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, MeshDistortMaterial, MeshWobbleMaterial, Sphere, Torus, Icosahedron, Octahedron } from "@react-three/drei";
+import { Points, PointMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
-function FloatingIcosahedron({ position }: { position: [number, number, number] }) {
-  const meshRef = useRef<THREE.Mesh>(null);
+/* ── Neural network nodes ───────────────────────────── */
+function NeuralNodes() {
+  const groupRef = useRef<THREE.Group>(null);
 
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = state.clock.elapsedTime * 0.15;
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.2;
+  const { positions, connections } = useMemo(() => {
+    const count = 60;
+    const pos: [number, number, number][] = [];
+    for (let i = 0; i < count; i++) {
+      pos.push([
+        (Math.random() - 0.5) * 14,
+        (Math.random() - 0.5) * 10,
+        (Math.random() - 0.5) * 6 - 2,
+      ]);
     }
-  });
 
-  return (
-    <Float speed={1.5} rotationIntensity={0.4} floatIntensity={1.2}>
-      <Icosahedron ref={meshRef} args={[1, 1]} position={position}>
-        <MeshDistortMaterial
-          color="#06b6d4"
-          roughness={0.15}
-          metalness={0.9}
-          distort={0.25}
-          speed={2}
-          transparent
-          opacity={0.7}
-        />
-      </Icosahedron>
-    </Float>
-  );
-}
-
-function FloatingTorus({ position }: { position: [number, number, number] }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = state.clock.elapsedTime * 0.3;
-      meshRef.current.rotation.z = state.clock.elapsedTime * 0.1;
+    // Build connections for nearby nodes
+    const conns: [number, number][] = [];
+    for (let i = 0; i < count; i++) {
+      for (let j = i + 1; j < count; j++) {
+        const dx = pos[i][0] - pos[j][0];
+        const dy = pos[i][1] - pos[j][1];
+        const dz = pos[i][2] - pos[j][2];
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (dist < 3.5) conns.push([i, j]);
+      }
     }
-  });
 
-  return (
-    <Float speed={2} rotationIntensity={0.6} floatIntensity={0.8}>
-      <Torus ref={meshRef} args={[0.8, 0.3, 16, 32]} position={position}>
-        <MeshWobbleMaterial
-          color="#3b82f6"
-          roughness={0.1}
-          metalness={0.8}
-          factor={0.3}
-          speed={1.5}
-          transparent
-          opacity={0.6}
-        />
-      </Torus>
-    </Float>
-  );
-}
-
-function FloatingOctahedron({ position }: { position: [number, number, number] }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.25;
-      meshRef.current.rotation.z = state.clock.elapsedTime * 0.15;
-    }
-  });
-
-  return (
-    <Float speed={1.8} rotationIntensity={0.5} floatIntensity={1}>
-      <Octahedron ref={meshRef} args={[0.6]} position={position}>
-        <MeshDistortMaterial
-          color="#8b5cf6"
-          roughness={0.2}
-          metalness={0.85}
-          distort={0.2}
-          speed={1.5}
-          transparent
-          opacity={0.5}
-        />
-      </Octahedron>
-    </Float>
-  );
-}
-
-function Particles() {
-  const count = 200;
-  const positions = useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count * 3; i++) {
-      pos[i] = (Math.random() - 0.5) * 20;
-    }
-    return pos;
+    return { positions: pos, connections: conns };
   }, []);
 
-  const ref = useRef<THREE.Points>(null);
+  // Connection lines geometry
+  const lineGeometry = useMemo(() => {
+    const pts: number[] = [];
+    for (const [a, b] of connections) {
+      pts.push(...positions[a], ...positions[b]);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+    return geo;
+  }, [connections, positions]);
+
+  // Particle positions
+  const particlePositions = useMemo(() => {
+    const arr = new Float32Array(positions.length * 3);
+    positions.forEach(([x, y, z], i) => {
+      arr[i * 3] = x;
+      arr[i * 3 + 1] = y;
+      arr[i * 3 + 2] = z;
+    });
+    return arr;
+  }, [positions]);
+
+  // Background star particles
+  const starPositions = useMemo(() => {
+    const count = 300;
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count * 3; i++) {
+      arr[i] = (Math.random() - 0.5) * 30;
+    }
+    return arr;
+  }, []);
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y = state.clock.elapsedTime * 0.018;
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.008) * 0.08;
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      {/* Connection lines */}
+      <lineSegments geometry={lineGeometry}>
+        <lineBasicMaterial
+          color="#06b6d4"
+          transparent
+          opacity={0.08}
+        />
+      </lineSegments>
+
+      {/* Neural node points */}
+      <points>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[particlePositions, 3]}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.06}
+          color="#22d3ee"
+          transparent
+          opacity={0.8}
+          sizeAttenuation
+        />
+      </points>
+
+      {/* Stars background */}
+      <points>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[starPositions, 3]}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.025}
+          color="#7dd3fc"
+          transparent
+          opacity={0.3}
+          sizeAttenuation
+        />
+      </points>
+    </group>
+  );
+}
+
+/* ── Pulsing ring ────────────────────────────────────── */
+function PulsingRing() {
+  const ref = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
     if (ref.current) {
-      ref.current.rotation.y = state.clock.elapsedTime * 0.02;
-      ref.current.rotation.x = state.clock.elapsedTime * 0.01;
+      const s = 1 + Math.sin(state.clock.elapsedTime * 0.8) * 0.06;
+      ref.current.scale.set(s, s, 1);
+      ref.current.rotation.z = state.clock.elapsedTime * 0.05;
+      (ref.current.material as THREE.MeshBasicMaterial).opacity =
+        0.04 + Math.sin(state.clock.elapsedTime * 0.8) * 0.02;
     }
   });
 
   return (
-    <points ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[positions, 3]}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.03}
-        color="#06b6d4"
-        transparent
-        opacity={0.6}
-        sizeAttenuation
-      />
-    </points>
+    <mesh ref={ref} position={[0, 0, -3]}>
+      <torusGeometry args={[4, 0.015, 4, 120]} />
+      <meshBasicMaterial color="#06b6d4" transparent opacity={0.05} />
+    </mesh>
   );
 }
 
-function WireframeSphere() {
-  const meshRef = useRef<THREE.Mesh>(null);
+function PulsingRing2() {
+  const ref = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.05;
-      meshRef.current.rotation.x = state.clock.elapsedTime * 0.03;
+    if (ref.current) {
+      const s = 1 + Math.sin(state.clock.elapsedTime * 0.5 + 1) * 0.04;
+      ref.current.scale.set(s, s, 1);
+      ref.current.rotation.z = -state.clock.elapsedTime * 0.03;
     }
   });
 
   return (
-    <Sphere ref={meshRef} args={[3, 32, 32]} position={[0, 0, -2]}>
-      <meshBasicMaterial
-        color="#0e7490"
-        wireframe
-        transparent
-        opacity={0.08}
-      />
-    </Sphere>
+    <mesh ref={ref} position={[0, 0, -3.5]}>
+      <torusGeometry args={[6, 0.01, 4, 160]} />
+      <meshBasicMaterial color="#8b5cf6" transparent opacity={0.04} />
+    </mesh>
   );
 }
 
@@ -150,22 +167,17 @@ export default function HeroScene() {
   return (
     <div className="absolute inset-0 -z-10">
       <Canvas
-        camera={{ position: [0, 0, 6], fov: 60 }}
+        camera={{ position: [0, 0, 7], fov: 55 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true }}
         style={{ background: "transparent" }}
       >
-        <ambientLight intensity={0.3} />
-        <directionalLight position={[5, 5, 5]} intensity={0.8} color="#e0f2fe" />
-        <pointLight position={[-5, -3, 3]} intensity={0.4} color="#06b6d4" />
-        <pointLight position={[5, 3, -3]} intensity={0.3} color="#8b5cf6" />
+        <ambientLight intensity={0.1} />
+        <pointLight position={[0, 0, 5]} intensity={0.3} color="#06b6d4" />
 
-        <FloatingIcosahedron position={[2.5, 1, 0]} />
-        <FloatingTorus position={[-2.8, -0.5, -1]} />
-        <FloatingOctahedron position={[-1, 2, -0.5]} />
-        <FloatingOctahedron position={[1.5, -2, 0.5]} />
-        <WireframeSphere />
-        <Particles />
+        <NeuralNodes />
+        <PulsingRing />
+        <PulsingRing2 />
       </Canvas>
     </div>
   );

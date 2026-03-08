@@ -28,7 +28,6 @@ export default function Navbar() {
   ) => {
     e.preventDefault();
     setMobileOpen(false);
-    // Wait for menu close animation, then scroll
     setTimeout(() => {
       const id = href.replace("#", "");
       const el = document.getElementById(id);
@@ -43,28 +42,33 @@ export default function Navbar() {
       transition={{ duration: 0.6 }}
       className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl"
+          ? "border-b border-cyan-500/10 bg-[#030712]/90 backdrop-blur-xl shadow-lg shadow-black/20"
           : "bg-transparent"
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        {/* Logo */}
         <Link
           href="/"
-          className="text-lg font-bold text-white transition-colors hover:text-cyan-400"
+          className="group flex items-center gap-1 text-lg font-bold text-white transition-colors hover:text-cyan-400"
           style={{ fontFamily: "'Syne', sans-serif" }}
         >
-          ABS<span className="text-cyan-400">.</span>
+          <span className="font-mono text-cyan-500 opacity-60 text-sm mr-0.5">&lt;</span>
+          ABS
+          <span className="text-cyan-400">/</span>
+          <span className="font-mono text-cyan-500 opacity-60 text-sm ml-0.5">&gt;</span>
         </Link>
 
         {/* Desktop */}
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {navItems.map((item) => (
             <a
               key={item.label}
               href={item.href}
-              className="text-sm text-zinc-400 transition-colors hover:text-white"
+              className="group relative text-sm text-slate-400 transition-colors hover:text-white"
             >
               {item.label}
+              <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-cyan-400 transition-all group-hover:w-full" />
             </a>
           ))}
         </div>
@@ -77,15 +81,15 @@ export default function Navbar() {
         >
           <motion.div
             animate={mobileOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
-            className="h-0.5 w-5 bg-white"
+            className="h-px w-5 bg-cyan-400/80"
           />
           <motion.div
             animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }}
-            className="h-0.5 w-5 bg-white"
+            className="h-px w-5 bg-white/60"
           />
           <motion.div
             animate={mobileOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
-            className="h-0.5 w-5 bg-white"
+            className="h-px w-5 bg-cyan-400/80"
           />
         </button>
       </div>
@@ -97,18 +101,22 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-xl md:hidden"
+            className="border-b border-cyan-500/10 bg-[#030712]/95 backdrop-blur-xl md:hidden"
           >
-            <div className="flex flex-col gap-4 px-6 py-6">
-              {navItems.map((item) => (
-                <a
+            <div className="flex flex-col gap-1 px-6 py-4">
+              {navItems.map((item, i) => (
+                <motion.a
                   key={item.label}
                   href={item.href}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.06 }}
                   onClick={(e) => handleMobileNavClick(e, item.href)}
-                  className="text-sm text-zinc-400 transition-colors hover:text-white"
+                  className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-slate-400 transition-colors hover:bg-cyan-500/5 hover:text-white"
                 >
+                  <span className="font-mono text-cyan-500/40 text-xs">0{i + 1}</span>
                   {item.label}
-                </a>
+                </motion.a>
               ))}
             </div>
           </motion.div>
