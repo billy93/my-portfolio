@@ -15,6 +15,7 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
     "@neondatabase/serverless": "^1.0.2",
+    "@opencode-ai/plugin": "^1.2.21",
     "@prisma/adapter-neon": "^7.4.2",
     "@prisma/client": "^7.4.2",
     "@react-three/drei": "^10.7.7",

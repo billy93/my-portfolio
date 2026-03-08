@@ -103,7 +103,7 @@ export default function AboutSection({ profile }: AboutSectionProps) {
             <div className="mt-8 flex gap-4">
               {profile?.github && (
                 <a
-                  href={`https://github.com/${profile.github}`}
+                  href={profile.github?.startsWith("http") ? profile.github : `https://github.com/${profile.github}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-cyan-400"
@@ -116,7 +116,7 @@ export default function AboutSection({ profile }: AboutSectionProps) {
               )}
               {profile?.linkedin && (
                 <a
-                  href={`https://linkedin.com/in/${profile.linkedin}`}
+                  href={profile.linkedin?.startsWith("http") ? profile.linkedin : `https://linkedin.com/in/${profile.linkedin}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-cyan-400"
