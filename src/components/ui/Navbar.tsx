@@ -22,6 +22,20 @@ export default function Navbar() {
     { label: "Contact", href: "#contact" },
   ];
 
+  const handleMobileNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    e.preventDefault();
+    setMobileOpen(false);
+    // Wait for menu close animation, then scroll
+    setTimeout(() => {
+      const id = href.replace("#", "");
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }, 300);
+  };
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -90,7 +104,7 @@ export default function Navbar() {
                 <a
                   key={item.label}
                   href={item.href}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={(e) => handleMobileNavClick(e, item.href)}
                   className="text-sm text-zinc-400 transition-colors hover:text-white"
                 >
                   {item.label}
