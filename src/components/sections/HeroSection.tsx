@@ -104,13 +104,13 @@ export default function HeroSection({ profile }: HeroSectionProps) {
 
       <HeroScene />
 
-      <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
+      <div className="relative z-10 mx-auto max-w-5xl px-6 pt-20 text-center sm:pt-0">
         {/* AI badge */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-cyan-500/20 bg-cyan-500/5 px-4 py-1.5 backdrop-blur-sm"
+          className="mb-6 sm:mb-8 inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/5 px-3 py-1.5 sm:px-4 sm:py-1.5 backdrop-blur-sm text-[10px] sm:text-xs"
         >
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-60" />
@@ -123,7 +123,7 @@ export default function HeroSection({ profile }: HeroSectionProps) {
 
         {/* Name */}
         <motion.h1
-          className="mb-5 text-5xl font-bold tracking-tight text-white sm:text-7xl lg:text-8xl"
+          className="mb-4 sm:mb-5 text-3xl sm:text-5xl lg:text-8xl font-bold tracking-tight text-white"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
